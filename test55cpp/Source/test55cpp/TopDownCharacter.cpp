@@ -66,6 +66,13 @@ void ATopDownCharacter::BeginPlay()
 {
     Super::BeginPlay();
 
+    // Ensure plane constraint uses our spawn Z, otherwise default origin(0) can bury us in non-zero-height maps.
+    if (UCharacterMovementComponent* MoveComp = GetCharacterMovement())
+    {
+        const float SpawnZ = GetActorLocation().Z;
+        MoveComp->SetPlaneConstraintOrigin(FVector(0.f, 0.f, SpawnZ));
+    }
+
     // Add mapping context if provided externally (do not create in code)
     if (bAddDefaultMappingContext)
     {
@@ -141,6 +148,11 @@ void ATopDownCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, ui
         // Allow vertical movement while falling, re-constrain on ground/navigation
         const bool bFalling = MoveComp->IsFalling();
         MoveComp->SetPlaneConstraintEnabled(!bFalling);
+        if (!bFalling)
+        {
+            // After landing, lock the plane to the current ground Z to prevent drift or snapping to 0
+            MoveComp->SetPlaneConstraintOrigin(FVector(0.f, 0.f, GetActorLocation().Z));
+        }
     }
 }
 

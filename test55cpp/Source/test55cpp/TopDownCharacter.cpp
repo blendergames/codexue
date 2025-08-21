@@ -25,6 +25,10 @@ ATopDownCharacter::ATopDownCharacter()
     CameraBoom->TargetArmLength = 1200.0f; // Distance to character
     CameraBoom->bDoCollisionTest = false;  // Keep camera fixed for top-down
     CameraBoom->bUsePawnControlRotation = false;
+    CameraBoom->SetUsingAbsoluteRotation(true); // Do not inherit pawn rotation
+    CameraBoom->bInheritPitch = false;
+    CameraBoom->bInheritYaw = false;
+    CameraBoom->bInheritRoll = false;
     CameraBoom->SetRelativeRotation(FRotator(-60.f, 0.f, 0.f)); // Slightly pitched view
 
     // Camera

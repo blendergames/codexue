@@ -13,6 +13,9 @@
 
 #include "InputActionValue.h"
 
+#include "TopDownProjectile.h"
+#include "Kismet/GameplayStatics.h"
+
 ATopDownCharacter::ATopDownCharacter()
 {
     PrimaryActorTick.bCanEverTick = false;
@@ -101,6 +104,11 @@ void ATopDownCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
             EIC->BindAction(JumpAction, ETriggerEvent::Completed, this, &ATopDownCharacter::StopJump);
             EIC->BindAction(JumpAction, ETriggerEvent::Canceled,  this, &ATopDownCharacter::StopJump);
         }
+
+        if (FireAction)
+        {
+            EIC->BindAction(FireAction, ETriggerEvent::Started, this, &ATopDownCharacter::HandleFire);
+        }
     }
 }
 
@@ -149,4 +157,34 @@ void ATopDownCharacter::StartJump(const FInputActionValue& /*Value*/)
 void ATopDownCharacter::StopJump(const FInputActionValue& /*Value*/)
 {
     StopJumping();
+}
+
+void ATopDownCharacter::HandleFire(const FInputActionValue& /*Value*/)
+{
+    if (!ProjectileClass)
+    {
+        return;
+    }
+
+    const FVector ActorLoc = GetActorLocation();
+
+    // Forward only in XY plane to avoid vertical deviation in top-down
+    const FRotator YawOnlyRot(0.f, GetActorRotation().Yaw, 0.f);
+    const FVector Forward = YawOnlyRot.Vector();
+
+    const FVector SpawnLoc = ActorLoc + Forward * MuzzleForwardOffset + FVector(0.f, 0.f, MuzzleUpOffset);
+    const FRotator SpawnRot = YawOnlyRot;
+
+    FActorSpawnParameters Params;
+    Params.Owner = this;
+    Params.Instigator = this;
+    Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+    if (UWorld* World = GetWorld())
+    {
+        if (ATopDownProjectile* Proj = World->SpawnActor<ATopDownProjectile>(ProjectileClass, SpawnLoc, SpawnRot, Params))
+        {
+            Proj->FireInDirection(Forward);
+        }
+    }
 }

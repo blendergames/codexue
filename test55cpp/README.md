@@ -13,8 +13,10 @@
   - `UInputMappingContext* DefaultMappingContext`
   - `UInputAction* MoveAction`
   - `UInputAction* JumpAction`
+  - `UInputAction* FireAction`
   - `bool bAddDefaultMappingContext`(기본 true): `BeginPlay`에 IMC 추가
   - 점프: `Space` 등으로 `JumpAction` 트리거 → 평면 제약 해제 후 점프, 착지 시 재활성화
+  - 발사: 캐릭터 전방(Yaw 기준)으로 투사체 스폰 및 발사
 
 ## 파일
 - 추가: `Source/test55cpp/TopDownCharacter.h`, `Source/test55cpp/TopDownCharacter.cpp`
@@ -47,14 +49,31 @@
 - `IA_Jump` (Value: `Bool`)
   - 키보드: `Space Bar`
   - 트리거: `Started`에 Jump, `Completed/Canceled`에 StopJumping
+- `IA_Fire` (Value: `Bool`)
+  - 키보드: `Left Mouse Button` 또는 `F` 등
+  - 트리거: `Started`에 발사
 - IMC: `IA_Move`를 위 키/축에 매핑
   - IMC에 `IA_Jump`도 추가
+  - IMC에 `IA_Fire`도 추가
 
 ## 동작 요약
 - 컨트롤러 Yaw 기준 앞/오른쪽 벡터를 계산하고 `AddMovementInput`에 적용
 - 카메라는 스프링암에 고정되어 컨트롤러 회전에 영향 받지 않음
 - 캐릭터는 이동 방향으로 자연스럽게 회전(`bOrientRotationToMovement = true`)
- - 점프 시 Z 평면 제약을 임시로 해제해 실제로 떠오르고, 착지하면 다시 XY 평면에 고정됨
+- 점프 시 Z 평면 제약을 임시로 해제해 실제로 떠오르고, 착지하면 다시 XY 평면에 고정됨
+ - 발사 시 캐릭터의 Yaw 기준 전방 2D 벡터로 투사체를 스폰하고, 정해진 속도로 전진
+
+## 투사체 클래스
+- `ATopDownProjectile` (`Source/test55cpp/TopDownProjectile.h/.cpp`)
+  - `USphereComponent` 충돌, `UProjectileMovementComponent` 이동
+  - 중력 0, 수명 기본 3초, 히트 시 파괴
+  - `FireInDirection(Forward)`로 초기 속도 설정
+
+## 캐릭터 발사 설정
+- `BP_TopDownCharacter`에서 다음을 지정
+  - `FireAction`에 `IA_Fire`
+  - `ProjectileClass`에 투사체 BP(또는 C++ 클래스) 지정
+  - `MuzzleForwardOffset`, `MuzzleUpOffset`으로 발사 위치 조정
 
 ## 참고
 - 소스 위치: `Source/test55cpp/TopDownCharacter.*`

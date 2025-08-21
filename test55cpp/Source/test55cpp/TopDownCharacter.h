@@ -12,6 +12,7 @@ class UStaticMeshComponent;
 class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
+class ATopDownProjectile;
 
 UCLASS(Blueprintable)
 class TEST55CPP_API ATopDownCharacter : public ACharacter
@@ -43,6 +44,9 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
     TObjectPtr<UInputAction> JumpAction;
 
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
+    TObjectPtr<UInputAction> FireAction;
+
     // If true, automatically add DefaultMappingContext on BeginPlay
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
     bool bAddDefaultMappingContext = true;
@@ -58,4 +62,17 @@ private:
     // Jump handlers (Enhanced Input)
     void StartJump(const FInputActionValue& Value);
     void StopJump(const FInputActionValue& Value);
+
+    void HandleFire(const FInputActionValue& Value);
+
+private:
+    // Projectile config
+    UPROPERTY(EditDefaultsOnly, Category = "Combat")
+    TSubclassOf<ATopDownProjectile> ProjectileClass;
+
+    UPROPERTY(EditAnywhere, Category = "Combat")
+    float MuzzleForwardOffset = 60.f;
+
+    UPROPERTY(EditAnywhere, Category = "Combat")
+    float MuzzleUpOffset = 40.f;
 };

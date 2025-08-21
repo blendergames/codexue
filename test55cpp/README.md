@@ -17,6 +17,7 @@
 ## 파일
 - 추가: `Source/test55cpp/TopDownCharacter.h`, `Source/test55cpp/TopDownCharacter.cpp`
 - 확인: `Source/test55cpp/test55cpp.Build.cs`에 `EnhancedInput` 의존성 포함
+ - 추가: `Source/test55cpp/TopDownGameMode.h`, `Source/test55cpp/TopDownGameMode.cpp` (빈 GameMode)
 
 ## 에디터 설정 가이드
 1) 블루프린트 생성
@@ -29,6 +30,13 @@
 2) 월드 배치/기본 폰 설정
 - 맵에 `BP_TopDownCharacter` 배치 후 플레이어가 Possess하도록 하거나
 - GameMode에서 `Default Pawn Class`를 `BP_TopDownCharacter`로 지정
+
+3) GameMode 사용(폰 BP 연결용)
+- `ATopDownGameMode` 기반 블루프린트 `BP_TopDownGameMode` 생성
+- `BP_TopDownGameMode`의 `Default Pawn Class`를 `BP_TopDownCharacter`로 설정
+- 적용 방법 중 택1
+  - 프로젝트 설정 > Maps & Modes > Default GameMode에 `BP_TopDownGameMode` 지정
+  - 또는 레벨의 World Settings > GameMode Override에 `BP_TopDownGameMode` 지정
 
 ## 입력 자산 권장 예시
 - `IA_Move` (Value: `Axis2D`)
@@ -50,4 +58,3 @@
 - GameMode/PlayerController 클래스를 추가해 `Default Pawn` 지정 및 IMC 추가 위치를 명확히 분리
 - 정사영(Orthographic) 탑다운이 필요하면 카메라 프로젝션 모드 옵션화
 - 런/스프린트, 회피, 상호작용 등 입력 액션 확장
-

@@ -54,9 +54,6 @@ ATopDownCharacter::ATopDownCharacter()
     UCharacterMovementComponent* MoveComp = GetCharacterMovement();
     MoveComp->bOrientRotationToMovement = true; // Rotate toward movement
     MoveComp->RotationRate = FRotator(0.f, 540.f, 0.f);
-    MoveComp->bConstrainToPlane = true;
-    MoveComp->SetPlaneConstraintAxisSetting(EPlaneConstraintAxisSetting::Z);
-    MoveComp->bSnapToPlaneAtStart = true;
     MoveComp->MaxWalkSpeed = 600.f;
     MoveComp->JumpZVelocity = 420.f;
     MoveComp->AirControl = 0.35f;
@@ -65,13 +62,6 @@ ATopDownCharacter::ATopDownCharacter()
 void ATopDownCharacter::BeginPlay()
 {
     Super::BeginPlay();
-
-    // Ensure plane constraint uses our spawn Z, otherwise default origin(0) can bury us in non-zero-height maps.
-    if (UCharacterMovementComponent* MoveComp = GetCharacterMovement())
-    {
-        const float SpawnZ = GetActorLocation().Z;
-        MoveComp->SetPlaneConstraintOrigin(FVector(0.f, 0.f, SpawnZ));
-    }
 
     // Add mapping context if provided externally (do not create in code)
     if (bAddDefaultMappingContext)
@@ -139,30 +129,9 @@ void ATopDownCharacter::HandleMove(const FInputActionValue& Value)
     AddMovementInput(RightDir,   MoveVec.X);
 }
 
-void ATopDownCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode)
-{
-    Super::OnMovementModeChanged(PrevMovementMode, PreviousCustomMode);
-
-    if (UCharacterMovementComponent* MoveComp = GetCharacterMovement())
-    {
-        // Allow vertical movement while falling, re-constrain on ground/navigation
-        const bool bFalling = MoveComp->IsFalling();
-        MoveComp->SetPlaneConstraintEnabled(!bFalling);
-        if (!bFalling)
-        {
-            // After landing, lock the plane to the current ground Z to prevent drift or snapping to 0
-            MoveComp->SetPlaneConstraintOrigin(FVector(0.f, 0.f, GetActorLocation().Z));
-        }
-    }
-}
 
 void ATopDownCharacter::StartJump(const FInputActionValue& /*Value*/)
 {
-    if (UCharacterMovementComponent* MoveComp = GetCharacterMovement())
-    {
-        // Proactively disable constraint so initial jump impulse isn't flattened
-        MoveComp->SetPlaneConstraintEnabled(false);
-    }
     Jump();
 }
 

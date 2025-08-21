@@ -8,14 +8,14 @@
   - 각도 기본 `Pitch -60°`, 카메라 충돌 비활성화, 컨트롤러 회전 미사용
 - 임시 비주얼: `UStaticMeshComponent BodyMesh` 추가(충돌 없음) — 스켈레탈로 교체 예정
 - 이동: Enhanced Input `Vector2D` 입력 기반 전/후(Y), 좌/우(X) 이동
-- 이동 세팅: XY 평면 고정, 시작 시 평면 스냅, 이동 방향으로 Yaw 회전
+- 이동 세팅: 이동 방향으로 Yaw 회전(평면 제약 사용 안 함)
 - 코드에서 자산 생성 없음: IMC/IA는 에디터에서 할당
   - `UInputMappingContext* DefaultMappingContext`
   - `UInputAction* MoveAction`
   - `UInputAction* JumpAction`
   - `UInputAction* FireAction`
   - `bool bAddDefaultMappingContext`(기본 true): `BeginPlay`에 IMC 추가
-  - 점프: `Space` 등으로 `JumpAction` 트리거 → 평면 제약 해제 후 점프, 착지 시 재활성화
+  - 점프: `Space`로 점프(평면 제약 없음)
   - 발사: 캐릭터 전방(Yaw 기준)으로 투사체 스폰 및 발사
 
 ## 파일
@@ -60,7 +60,7 @@
 - 컨트롤러 Yaw 기준 앞/오른쪽 벡터를 계산하고 `AddMovementInput`에 적용
 - 카메라는 스프링암에 고정되어 컨트롤러 회전에 영향 받지 않음
 - 캐릭터는 이동 방향으로 자연스럽게 회전(`bOrientRotationToMovement = true`)
-- 점프 시 Z 평면 제약을 임시로 해제해 실제로 떠오르고, 착지하면 다시 XY 평면에 고정됨
+- 평면 제약을 사용하지 않아 다양한 지형 높이에서도 자연스럽게 이동/점프
  - 발사 시 캐릭터의 Yaw 기준 전방 2D 벡터로 투사체를 스폰하고, 정해진 속도로 전진
 
 ## 투사체 클래스

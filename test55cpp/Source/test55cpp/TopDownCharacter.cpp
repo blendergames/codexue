@@ -51,6 +51,8 @@ ATopDownCharacter::ATopDownCharacter()
     MoveComp->SetPlaneConstraintAxisSetting(EPlaneConstraintAxisSetting::Z);
     MoveComp->bSnapToPlaneAtStart = true;
     MoveComp->MaxWalkSpeed = 600.f;
+    MoveComp->JumpZVelocity = 420.f;
+    MoveComp->AirControl = 0.35f;
 }
 
 void ATopDownCharacter::BeginPlay()
@@ -88,6 +90,13 @@ void ATopDownCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
             EIC->BindAction(MoveAction, ETriggerEvent::Completed, this, &ATopDownCharacter::HandleMove);
             EIC->BindAction(MoveAction, ETriggerEvent::Canceled, this, &ATopDownCharacter::HandleMove);
         }
+
+        if (JumpAction)
+        {
+            EIC->BindAction(JumpAction, ETriggerEvent::Started,  this, &ATopDownCharacter::StartJump);
+            EIC->BindAction(JumpAction, ETriggerEvent::Completed, this, &ATopDownCharacter::StopJump);
+            EIC->BindAction(JumpAction, ETriggerEvent::Canceled,  this, &ATopDownCharacter::StopJump);
+        }
     }
 }
 
@@ -109,4 +118,31 @@ void ATopDownCharacter::HandleMove(const FInputActionValue& Value)
 
     AddMovementInput(ForwardDir, MoveVec.Y);
     AddMovementInput(RightDir,   MoveVec.X);
+}
+
+void ATopDownCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode)
+{
+    Super::OnMovementModeChanged(PrevMovementMode, PreviousCustomMode);
+
+    if (UCharacterMovementComponent* MoveComp = GetCharacterMovement())
+    {
+        // Allow vertical movement while falling, re-constrain on ground/navigation
+        const bool bFalling = MoveComp->IsFalling();
+        MoveComp->SetPlaneConstraintEnabled(!bFalling);
+    }
+}
+
+void ATopDownCharacter::StartJump(const FInputActionValue& /*Value*/)
+{
+    if (UCharacterMovementComponent* MoveComp = GetCharacterMovement())
+    {
+        // Proactively disable constraint so initial jump impulse isn't flattened
+        MoveComp->SetPlaneConstraintEnabled(false);
+    }
+    Jump();
+}
+
+void ATopDownCharacter::StopJump(const FInputActionValue& /*Value*/)
+{
+    StopJumping();
 }

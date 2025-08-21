@@ -12,7 +12,9 @@
 - 코드에서 자산 생성 없음: IMC/IA는 에디터에서 할당
   - `UInputMappingContext* DefaultMappingContext`
   - `UInputAction* MoveAction`
+  - `UInputAction* JumpAction`
   - `bool bAddDefaultMappingContext`(기본 true): `BeginPlay`에 IMC 추가
+  - 점프: `Space` 등으로 `JumpAction` 트리거 → 평면 제약 해제 후 점프, 착지 시 재활성화
 
 ## 파일
 - 추가: `Source/test55cpp/TopDownCharacter.h`, `Source/test55cpp/TopDownCharacter.cpp`
@@ -42,12 +44,17 @@
 - `IA_Move` (Value: `Axis2D`)
   - 키보드: `W(0,+1)`, `S(0,-1)`, `A(-1,0)`, `D(+1,0)`
   - 게임패드: `Left Stick (2D Axis)`
+- `IA_Jump` (Value: `Bool`)
+  - 키보드: `Space Bar`
+  - 트리거: `Started`에 Jump, `Completed/Canceled`에 StopJumping
 - IMC: `IA_Move`를 위 키/축에 매핑
+  - IMC에 `IA_Jump`도 추가
 
 ## 동작 요약
 - 컨트롤러 Yaw 기준 앞/오른쪽 벡터를 계산하고 `AddMovementInput`에 적용
 - 카메라는 스프링암에 고정되어 컨트롤러 회전에 영향 받지 않음
 - 캐릭터는 이동 방향으로 자연스럽게 회전(`bOrientRotationToMovement = true`)
+ - 점프 시 Z 평면 제약을 임시로 해제해 실제로 떠오르고, 착지하면 다시 XY 평면에 고정됨
 
 ## 참고
 - 소스 위치: `Source/test55cpp/TopDownCharacter.*`

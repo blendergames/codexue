@@ -40,14 +40,22 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
     TObjectPtr<UInputAction> MoveAction;
 
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
+    TObjectPtr<UInputAction> JumpAction;
+
     // If true, automatically add DefaultMappingContext on BeginPlay
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
     bool bAddDefaultMappingContext = true;
 
     virtual void BeginPlay() override;
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+    virtual void OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode) override;
 
 private:
     // Input handlers
     void HandleMove(const FInputActionValue& Value);
+
+    // Jump handlers (Enhanced Input)
+    void StartJump(const FInputActionValue& Value);
+    void StopJump(const FInputActionValue& Value);
 };
